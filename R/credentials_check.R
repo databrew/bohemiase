@@ -34,10 +34,8 @@ credentials_check <- function(credentials_path = NULL){
         pw <- readline(prompt="ODK Central user password: ")
       }
 
-      backup_pw <- ''
-      while(nchar(backup_pw) < 1){
-        backup_pw <- readline(prompt="ODK Central password for backups: ")
-      }
+      backup_pw <- readline(prompt="ODK Central password for backups: ")
+
 
       agg_url <- ''
       while(nchar(agg_url) < 1){

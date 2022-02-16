@@ -12,6 +12,13 @@ a) clone this repo, `cd` into it, and then run `Rscript build_package.R`, or
 
 b) from within an R session, run `remotes::install_github('databrew/bohemiase')`
 
+If installing on a linux shiny server, instead run:
+
+```
+sudo su - -c "R -e \"remotes::install_github('databrew/bohemiase')\"";
+```
+
+
 ## Initial configuration
 
 For `bohemiase` functions to work, it is essential that a `bohemia_credentials.yaml` file be created an its location be exported as an environment variable named `bohemia_credentials`. In order to set up the file and the environment variable correctly, run the following in R:

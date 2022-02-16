@@ -90,9 +90,9 @@ credentials_check <- function(credentials_path = NULL){
           paste0('agg_url: ', agg_url),
           paste0('agg_un: ', agg_un),
           paste0('agg_pw: ', agg_pw),
-          paste0('AWS_ACCESS_KEY_ID: ', aws_access_key_id),
-          paste0('AWS_SECRET_ACCESS_KEY: ', aws_secret_access_key),
-          paste0('AWS_DEFAULT_REGION_NAME: "eu-west-3"'),
+          paste0('aws_access_key_id: ', aws_access_key_id),
+          paste0('aws_secret_access_key: ', aws_secret_access_key),
+          paste0('aws_default_region_name: "eu-west-3"'),
           c(''))
       out_file <- file.path(write_to, 'bohemia_credentials.yaml')
       conn <- file(out_file)

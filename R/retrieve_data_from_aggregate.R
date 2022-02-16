@@ -49,6 +49,9 @@ retrieve_data_from_aggregate <- function(fids = NULL){
   # Remove the ODK Briefcase folder
   unlink('ODK Briefcase Storage', recursive = TRUE)
   unlink('csvs', recursive = TRUE)
+  if(file.exists('briefcase.log')){
+    file.remove('briefcase.log')
+  }
 
   # Create a folder for csvs
   if(!'csvs' %in% dir()){

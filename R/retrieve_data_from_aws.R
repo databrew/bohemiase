@@ -2,13 +2,14 @@
 #'
 #' Retrieve ODK Central data from the project's AWS S3 bucket
 #' @param fid Form ID for which data should be retrieved. If NULL, all
+#' @param central Whether to use the Central Server (by default, TRUE) or the aggregate server
 #' @return A list
 #' @export
 #' @import aws.s3
 #' @import yaml
 #' @import dplyr
 
-retrieve_data_from_aws <- function(fid = NULL){
+retrieve_data_from_aws <- function(fid = NULL, central = TRUE){
 
   if(!is.null(fid)){
     if(length(fid) > 1){
@@ -34,8 +35,14 @@ retrieve_data_from_aws <- function(fid = NULL){
     "AWS_DEFAULT_REGION" = "eu-west-3"
   )
 
-  server_name <- gsub('https://', '', creds$url, fixed = TRUE)
-  project_name <- creds$project_name
+  if(central){
+    server_name <- gsub('https://', '', creds$url, fixed = TRUE)
+    project_name <- creds$project_name
+  } else {
+    server_name <- gsub('https://', '', creds$agg_url, fixed = TRUE)
+    project_name <- 'Aggregate'
+  }
+
 
   # Retrieve for a specific form
   if(!is.null(fid)){

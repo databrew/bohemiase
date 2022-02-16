@@ -51,12 +51,20 @@ Instead of retrieving dataframes as nested lists, one can also simply get a full
 backup_central('path/to/file/to/save/dump.zip')
 ```
 
+
 ### Storage and backups
 
 Retrieving data (above) is important. But once retrieved, data must also be stored. The `save_to_aws()` function handles this, both for (a) full dump zip files and (b) specific R files.
 
 
+#### Retrieve data from AWS
 
+Retrieving data from Central is slow. For most analytical and reporting purposes, retrieving data from AWS S3 is faster and simpler. In order to do this, use the `retrieve_data_from_aws()` function. If a `fid` is specified, it will return the most recent snapshot of data for that form ID; if it is not specified, it will return a list of _all_ dataframes, always using the most recent snapshot of data.
+
+
+## Where are these functions actually used?
+
+In the `bohemia` repo at `pipeline`.
 
 
 

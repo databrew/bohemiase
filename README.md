@@ -45,17 +45,41 @@ In the above scenario, the function does not write any follows, nor does it soli
 To retrieve data from Central and save into an R object (a list of nested dataframes), run:
 
 ```
+# Retrieve all forms
 data_list <- retrieve_data_from_central(fids = NULL)
+# Retrieve just some forms
+data_list <- retrieve_data_from_central(fids = c('pigsa', 'pigsb', 'pigsc', 'pkdatacollectiontool', 'serefusalsabsences', 'varefusals'))
 ```
 
 If the `fids` argument above is NULL, all forms will be retrieved; otherwise, only those specified by `fids`.
 
-#### Get a full dump
+#### Retrieve data from Aggregate
+
+To retrieve data from Aggregate and save into an R object (a list of nested dataframes), run:
+
+```
+# Retrieve all forms
+data_list_agg <- retrieve_data_from_aggregate(fids = NULL)
+# Retrieve just some forms
+data_list_agg <- retrieve_data_from_aggregate(fids = c('pigsa', 'pigsb', 'pigsc', 'pkdatacollectiontool', 'serefusalsabsences', 'varefusals'))
+```
+
+If the `fids` argument above is NULL, all forms will be retrieved; otherwise, only those specified by `fids`.
+
+#### Get a full dump from Central
 
 Instead of retrieving dataframes as nested lists, one can also simply get a full dump of the ODK Central server using:
 
 ```
 backup_central('path/to/file/to/save/dump.zip')
+```
+
+#### Get a full dump from Aggregate
+
+Instead of retrieving dataframes as nested lists, one can also simply get a full dump of the ODK Aggregate server using:
+
+```
+# UNDER CONSTRUCTION
 ```
 
 

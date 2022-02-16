@@ -1,6 +1,6 @@
 #' Retrieve data from AWS
 #'
-#' Retrieve data from the project's AWS S3 bucket
+#' Retrieve ODK Central data from the project's AWS S3 bucket
 #' @param fid Form ID for which data should be retrieved. If NULL, all
 #' @return A list
 #' @export

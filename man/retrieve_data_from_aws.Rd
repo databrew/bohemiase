@@ -13,5 +13,5 @@ retrieve_data_from_aws(fid = NULL)
 A list
 }
 \description{
-Retrieve data from the project's AWS S3 bucket
+Retrieve ODK Central data from the project's AWS S3 bucket
 }

@@ -39,6 +39,21 @@ credentials_check <- function(credentials_path = NULL){
         backup_pw <- readline(prompt="ODK Central password for backups: ")
       }
 
+      agg_url <- ''
+      while(nchar(agg_url) < 1){
+        agg_url <- readline(prompt="ODK Aggregate server (include https://): ")
+      }
+
+      agg_un <- ''
+      while(nchar(agg_un) < 1){
+        agg_un <- readline(prompt="ODK Aggregate user name: ")
+      }
+
+      agg_pw <- ''
+      while(nchar(agg_pw) < 1){
+        agg_pw <- readline(prompt="ODK Aggregate user password: ")
+      }
+
       aws_access_key_id <- ''
       while(nchar(aws_access_key_id) < 1){
         aws_access_key_id <- readline(prompt="AWS S3 Access key ID: ")
@@ -55,6 +70,9 @@ credentials_check <- function(credentials_path = NULL){
       message('---ODK Central user: ', un)
       message('---ODK Central pass: ', pw)
       message('---ODK Central backup pass: ', backup_pw)
+      message('---ODK Aggregate server : ', agg_url)
+      message('---ODK Aggregate user : ', agg_un)
+      message('---ODK Aggregate password : ', agg_pw)
       message('---AWS S3 Access key ID: ', aws_access_key_id)
       message('---AWS S3 Secrety access key: ', aws_secret_access_key)
 
@@ -69,6 +87,9 @@ credentials_check <- function(credentials_path = NULL){
           paste0('un: ', un),
           paste0('pw: ', pw),
           paste0('backup_pw: ', backup_pw),
+          paste0('agg_url: ', agg_url),
+          paste0('agg_un: ', agg_un),
+          paste0('agg_pw: ', agg_pw),
           paste0('AWS_ACCESS_KEY_ID: ', aws_access_key_id),
           paste0('AWS_SECRET_ACCESS_KEY: ', aws_secret_access_key),
           paste0('AWS_SECRET_ACCESS_KEY: "eu-west-3"'),
@@ -88,16 +109,4 @@ credentials_check <- function(credentials_path = NULL){
   message('Going to set the bohemia_credentials environment variable to ', credentials_path)
   Sys.setenv('bohemia_credentials'=credentials_path)
   message('(done)')
-  # env_var <- Sys.getenv('bohemia_credentials')
-
-  # # Do some AWS specific environment variable handling
-  # creds <- yaml::yaml.load_file(credentials_path)
-  # for(i in 1:length(creds)){
-  #   Sys.setenv(names(creds)[i] = as.character(creds[i]))
-  # }
-  # Sys.setenv(
-  #   "AWS_ACCESS_KEY_ID" = awscreds$`Access key ID`,
-  #   "AWS_SECRET_ACCESS_KEY" = awscreds$`Secret access key`,
-  #   "AWS_DEFAULT_REGION" = "eu-west-3"
-  # )
 }

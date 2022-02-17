@@ -58,25 +58,31 @@ retrieve_data_from_aws <- function(fid = NULL, central = TRUE){
   buck <- get_bucket(bucket = 'bohemia2022',
                      prefix = prefix,
                      max = Inf)
-  # Get the time/date for each object
-  buck_names <- buck_times <-  c()
-  for(i in 1:length(buck)){
-    buck_names[i] <- buck[i]$Contents$Key
-    buck_times[i] <- buck[i]$Contents$LastModified
+  if(length(buck) > 0){
+    # Get the time/date for each object
+    buck_names <- buck_times <-  c()
+    for(i in 1:length(buck)){
+      buck_names[i] <- buck[i]$Contents$Key
+      buck_times[i] <- buck[i]$Contents$LastModified
+    }
+    # Reorganize as a dataframe
+    buck_df <- tibble(file = buck_names,
+                      date_time = substr(buck_times, 1, 19)) %>%
+      mutate(date_time = as.POSIXct(date_time, format = '%Y-%m-%dT%H:%M:%OS'))
+    # Get most recent object
+    most_recent <- buck_df %>%
+      filter(grepl('.RData', file)) %>%
+      filter(date_time == max(date_time)) %>%
+      dplyr::sample_n(1)
+    # Retrieve the actual object
+    aws.s3::s3load(
+      object = most_recent$file,
+      bucket = 'bohemia2022'
+    )
+    return(list(data = robject, time = most_recent$date_time))
+  } else {
+    message('No data matching the form IDs in question. Returning an empty list.')
+    return(list())
   }
-  # Reorganize as a dataframe
-  buck_df <- tibble(file = buck_names,
-                    date_time = substr(buck_times, 1, 19)) %>%
-    mutate(date_time = as.POSIXct(date_time, format = '%Y-%m-%dT%H:%M:%OS'))
-  # Get most recent object
-  most_recent <- buck_df %>%
-    filter(grepl('.RData', file)) %>%
-    filter(date_time == max(date_time)) %>%
-    dplyr::sample_n(1)
-  # Retrieve the actual object
-  aws.s3::s3load(
-    object = most_recent$file,
-    bucket = 'bohemia2022'
-  )
-  return(list(data = robject, time = most_recent$date_time))
+
 }

@@ -11,7 +11,7 @@
 
 save_to_aws <- function(robject = NULL,
                         file_path = NULL,
-                        bucket_path = NULL){
+                        bucket_path = NULL, ...){
 
   if(is.null(robject) & is.null(file_path)){
     stop('You must name at least an robject or a file_path')
@@ -48,7 +48,8 @@ save_to_aws <- function(robject = NULL,
   aws.s3::put_object(
     file = file_path,
     object = bucket_path,
-    bucket = 'bohemia2022'
+    bucket = 'bohemia2022',
+    multipart = TRUE
   )
   message('Uploaded ', file_path, ' to ', bucket_path)
 

@@ -4,7 +4,7 @@
 \alias{save_to_aws}
 \title{Save to AWS}
 \usage{
-save_to_aws(robject = NULL, file_path = NULL, bucket_path = NULL)
+save_to_aws(robject = NULL, file_path = NULL, bucket_path = NULL, ...)
 }
 \arguments{
 \item{robject}{An R object to save. Alternatively, use file_path}

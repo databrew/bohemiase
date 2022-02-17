@@ -43,7 +43,8 @@ retrieve_data_from_central <- function(fids = NULL,
   ruODK::ru_setup(pid = pid)
 
   # # Get a list of forms in the project
-  fl <- ruODK::form_list()
+  fl <- get_form_list()
+  # fl <- ruODK::form_list()
 
   # Cut down to only the form IDs which are relevant
   if(!is.null(fids)){

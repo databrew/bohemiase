@@ -52,6 +52,11 @@ credentials_check <- function(credentials_path = NULL){
         agg_pw <- readline(prompt="ODK Aggregate user password: ")
       }
 
+      briefcase_directory <- ''
+      while(nchar(briefcase_directory) < 1){
+        briefcase_directory <- readline(prompt="ODK Aggregate briefcase directory: ")
+      }
+
       aws_access_key_id <- ''
       while(nchar(aws_access_key_id) < 1){
         aws_access_key_id <- readline(prompt="AWS S3 Access key ID: ")
@@ -71,6 +76,7 @@ credentials_check <- function(credentials_path = NULL){
       message('---ODK Aggregate server : ', agg_url)
       message('---ODK Aggregate user : ', agg_un)
       message('---ODK Aggregate password : ', agg_pw)
+      message('---ODK Aggregate briefcase directory: ', briefcase_directory)
       message('---AWS S3 Access key ID: ', aws_access_key_id)
       message('---AWS S3 Secrety access key: ', aws_secret_access_key)
 
@@ -88,6 +94,7 @@ credentials_check <- function(credentials_path = NULL){
           paste0('agg_url: ', agg_url),
           paste0('agg_un: ', agg_un),
           paste0('agg_pw: ', agg_pw),
+          paste0('briefcase_directory: ', briefcase_directory),
           paste0('aws_access_key_id: ', aws_access_key_id),
           paste0('aws_secret_access_key: ', aws_secret_access_key),
           paste0('aws_default_region_name: "eu-west-3"'),

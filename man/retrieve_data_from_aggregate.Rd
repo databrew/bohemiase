@@ -4,10 +4,12 @@
 \alias{retrieve_data_from_aggregate}
 \title{Retrieve data from aggregate}
 \usage{
-retrieve_data_from_aggregate(fids = NULL)
+retrieve_data_from_aggregate(fids = NULL, use_local_briefcase = TRUE)
 }
 \arguments{
 \item{fids}{Form IDs for which data should be retrieved. If NULL, all}
+
+\item{use_local_briefcase}{Whether to use the local briefcase directory}
 }
 \value{
 A list

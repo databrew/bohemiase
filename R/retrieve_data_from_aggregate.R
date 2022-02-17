@@ -2,6 +2,7 @@
 #'
 #' Retrieve data from Aggregate server
 #' @param fids Form IDs for which data should be retrieved. If NULL, all
+#' @param use_local_briefcase Whether to use the local briefcase directory
 #' @return A list
 #' @export
 #' @import yaml
@@ -9,7 +10,10 @@
 #' @import odkr
 #' @import readr
 
-retrieve_data_from_aggregate <- function(fids = NULL){
+retrieve_data_from_aggregate <- function(fids = NULL,
+                                         use_local_briefcase = TRUE){
+
+  owd <- getwd()
 
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()
@@ -21,11 +25,11 @@ retrieve_data_from_aggregate <- function(fids = NULL){
 
   # Actually read in the credentials
   creds <- yaml::yaml.load_file(bohemia_credentials)
+  briefcase_directory <- creds$briefcase_directory
 
   # Get a briefcase jar
-  work_dir <- getwd()
-  if(!'odkBriefcase_latest.jar' %in% dir()){
-    odkr::get_briefcase(destination = work_dir)
+  if(!'odkBriefcase_latest.jar' %in% dir(briefcase_directory)){
+    odkr::get_briefcase(destination = briefcase_directory)
   }
 
   # Define some credentials
@@ -35,6 +39,10 @@ retrieve_data_from_aggregate <- function(fids = NULL){
 
   # Get the form list
   fl <- get_form_list_aggregate(pre_auth = F)
+
+  # Go into briefcase directory
+  setwd(briefcase_directory)
+  message('New working directory is ', briefcase_directory)
 
   # Cut down to only the form IDs which are relevant
   if(!is.null(fids)){
@@ -47,7 +55,7 @@ retrieve_data_from_aggregate <- function(fids = NULL){
   # Loop through each form ID and get the submission
   # but first delete anything already there
   # Remove the ODK Briefcase folder
-  unlink('ODK Briefcase Storage', recursive = TRUE)
+  # unlink('ODK Briefcase Storage', recursive = TRUE)
   unlink('csvs', recursive = TRUE)
   if(file.exists('briefcase.log')){
     file.remove('briefcase.log')
@@ -62,16 +70,16 @@ retrieve_data_from_aggregate <- function(fids = NULL){
     id <- this_fid <- fl$id[i]
     message('Form ', i, ' of ', nrow(fl), ': ', this_fid)
 
-    pull_remote(target = work_dir,
+    pull_remote(target = briefcase_directory,
                 id = id,
-                to = work_dir,
+                to = briefcase_directory,
                 from = server,
                 username = user,
                 password = password)
 
-    export_data(target = work_dir,
+    export_data(target = briefcase_directory,
                 id = id,
-                from = work_dir,
+                from = briefcase_directory,
                 to = 'csvs',
                 filename = paste0(id, '.csv'))
   }
@@ -103,5 +111,6 @@ retrieve_data_from_aggregate <- function(fids = NULL){
 
   names(odk_data) <- fl$id
   message('Returning a list of length ', length(odk_data))
+  setwd(owd)
   return(odk_data)
 }

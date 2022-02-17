@@ -79,7 +79,7 @@ backup_central('path/to/file/to/save/dump.zip')
 Instead of retrieving dataframes as nested lists, one can also simply get a full dump of the ODK Aggregate server using:
 
 ```
-# UNDER CONSTRUCTION
+backup_aggregate('path/to/file/to/save/dump.zip')
 ```
 
 
@@ -90,12 +90,40 @@ Retrieving data (above) is important. But once retrieved, data must also be stor
 
 #### Retrieve data from AWS
 
-Retrieving data from Central is slow. For most analytical and reporting purposes, retrieving data from AWS S3 is faster and simpler. In order to do this, use the `retrieve_data_from_aws()` function. If a `fid` is specified, it will return the most recent snapshot of data for that form ID; if it is not specified, it will return a list of _all_ dataframes, always using the most recent snapshot of data.
+Retrieving data from Central is slow. For most analytical and reporting purposes, retrieving data from AWS S3 is faster and simpler. In order to do this, use the `retrieve_data_from_aws()` function. If a `fid` is specified, it will return the most recent snapshot of data for that form ID; if it is not specified, it will return a list of _all_ dataframes, always using the most recent snapshot of data. Here is an example:
+
+```
+# Retrieve all forms from the Central server
+aws_data <- bohemiase::retrieve_data_from_aws(fid = NULL)
+# Retrieve all forms from the Aggregate server
+aws_data_aggregate <- bohemiase::retrieve_data_from_aws(fid = NULL, central = FALSE)
+```
 
 
 ## Where are these functions actually used?
 
 In the `bohemia` repo at `pipeline`.
+
+## Storage structure on AWS
+
+The code in `pipeline` calls the above functions so as to retrieve forms from both the Central and Aggregate server, and saves them into the `bohemia2022` bucket on AWS S3. Therein, data is organized as follows.
+
+*For individual forms*
+```
+<bucket>/<server>/<project>/<form ID>/<timestamp>.RData
+```
+
+*For all forms from a server in one list*
+```
+<bucket>/<server>/<project>/<timestamp>/data_list.RData
+```
+
+*For a zip file / backup of the server*
+```
+<bucket>/<server>/<project>/<timestamp>/backup.zip
+```
+
+In the case of the ODK Aggregate server, the `<project>` field consists of the word "Aggregate" (since ODK Aggregate does not have the "project" concept).
 
 
 

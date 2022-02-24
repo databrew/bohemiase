@@ -6,11 +6,6 @@
 \usage{
 retrieve_vatool_data_from_aws()
 }
-\arguments{
-\item{fid}{Form ID for which data should be retrieved. If NULL, all}
-
-\item{central}{Whether to use the Central Server (by default, TRUE) or the aggregate server}
-}
 \value{
 A list
 }

@@ -1,13 +1,13 @@
-#' Retrieve VAtool data from AWS
+#' Retrieve VA data from AWS
 #'
-#' Retrieve VAtool data from the project's AWS S3 bucket
+#' Retrieve VA data from the project's AWS S3 bucket. This is not for individual VA forms, but rather for the aggregated VA data as aggregated in the "pipeline" code
 #' @return A list
 #' @export
 #' @import aws.s3
 #' @import yaml
 #' @import dplyr
 
-retrieve_vatool_data_from_aws <- function(){
+retrieve_va_data_from_aws <- function(){
 
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()
@@ -28,7 +28,7 @@ retrieve_vatool_data_from_aws <- function(){
   )
 
   # Define prefix
-  prefix <- paste0('vatool/')
+  prefix <- paste0('va/')
 
   # Get the contents matching the prefix
   buck <- get_bucket(bucket = 'bohemia2022',

@@ -91,6 +91,9 @@ retrieve_data_from_aggregate <- function(fids = NULL,
   for(i in 1:length(ids)){
     this_id <- ids[i]
     sub_forms <- dir('csvs')[grepl(paste0(ids[i], ''), dir('csvs'))]
+    # Due to similar naming in va153, va153b, va153b2, and va153census, these
+    # can be mistaken as sub-forms and need to be dealt with appropriately
+    sub_forms <- sub_forms[!grepl('va153', sub_forms)]
     sub_forms <- sub_forms[grepl('.csv', sub_forms)]
     this_form_list <- list()
     # Get the parent form

@@ -99,6 +99,18 @@ aws_data <- bohemiase::retrieve_data_from_aws(fid = NULL)
 aws_data_aggregate <- bohemiase::retrieve_data_from_aws(fid = NULL, central = FALSE)
 ```
 
+Some non-ODK data can also be retrieved using functionality from `bohemiase`. Specifically, aggregated VA data (ie, the combined, un-truncated data from all 4 VA forms combined into one) by using:
+
+```
+retrieve_va_data_from_aws()
+```
+
+And VA Tool cause of deaths data (ie, physician adjudciations from the VA tool app), which can be retrieved using:
+
+```
+retrieve_vatool_data_from_aws()
+```
+
 
 ## Where are these functions actually used?
 
@@ -124,6 +136,3 @@ The code in `pipeline` calls the above functions so as to retrieve forms from bo
 ```
 
 In the case of the ODK Aggregate server, the `<project>` field consists of the word "Aggregate" (since ODK Aggregate does not have the "project" concept).
-
-
-

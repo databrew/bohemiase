@@ -75,6 +75,10 @@ retrieve_data_from_central <- function(fids = NULL,
       fid_list <- list()
       for(j in 1:nrow(sub_forms)){
         this_sub_form <- sub_forms$name[j]
+        # Define which part of column names needs to be removed
+        # in order to make column names concordant
+        remove_this <- gsub('Submissions.', '', this_sub_form, fixed = TRUE)
+        remove_this <- paste0(remove_this, '_')
         message('---sub-form ', j, ' of ', nrow(sub_forms), ': ', this_sub_form)
         # Get all the submissions for the sub form in question
         this_data <- ruODK::odata_submission_get(
@@ -84,7 +88,11 @@ retrieve_data_from_central <- function(fids = NULL,
         # Clean the column names
         if(clean_column_names){
           columns_df <- tibble(ruodk_name = names(this_data))
-          columns_df <- left_join(columns_df, schema_df) %>%
+          right <- schema_df %>%
+            mutate(ruodk_name = gsub(remove_this, '', ruodk_name))
+          columns_df <- left_join(columns_df,
+                                  right,
+                                  by = "ruodk_name") %>%
             mutate(name = ifelse(is.na(name), ruodk_name, name))
           names(this_data) <- columns_df$name
         }

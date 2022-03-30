@@ -72,7 +72,7 @@ retrieve_data_from_aws <- function(fid = NULL, central = TRUE){
     # Get most recent object
     most_recent <- buck_df %>%
       filter(grepl('.RData', file)) %>%
-      filter(date_time == max(date_time)) %>%
+      filter(date_time == max(date_time, na.rm = TRUE)) %>%
       dplyr::sample_n(1)
     # Retrieve the actual object
     aws.s3::s3load(

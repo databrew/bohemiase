@@ -3,6 +3,7 @@
 #' Retrieve data from Central server
 #' @param fids Form IDs for which data should be retrieved. If NULL, all
 #' @param clean_column_names Whether to clean the column names
+#' @param clean_table_names Whether to clean the table names (ie, remove all prefixes and leave only the repeat name)
 #' @return A list
 #' @export
 #' @import ruODK
@@ -10,7 +11,8 @@
 #' @import dplyr
 
 retrieve_data_from_central <- function(fids = NULL,
-                                       clean_column_names = TRUE){
+                                       clean_column_names = TRUE,
+                                       clean_table_names = FALSE){
 
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()
@@ -99,10 +101,15 @@ retrieve_data_from_central <- function(fids = NULL,
         this_data <- this_data[,!duplicated(names(this_data))]
         fid_list[[j]] <- this_data
       }
-      names(fid_list) <- sub_forms$name
+      if(clean_table_names){
+        names(fid_list) <- unlist(lapply(strsplit(sub_forms$name, split = '.', fixed = TRUE), function(x){x[length(x)]}))
+      } else {
+        names(fid_list) <- sub_forms$name
+      }
       out_list[[i]] <- fid_list
     }
     names(out_list) <- fl$fid
+
     data_list <- out_list
     message('Returning a list of length ', length(data_list))
     return(data_list)

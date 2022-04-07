@@ -5,12 +5,14 @@
 #' @param schema_table A dataframe of the form schema
 #' @param language The language to be used. By default, "english"
 #' @param variables_too Whether to recode variable names too. By default, FALSE
+#' @param messaging Whether to show messages
+#' @param exclude_variables A vector of variables to exclude from recoding (ie, those which are "select_multiple". Default: none)
 #' @return A dataframe
 #' @export
 #' @import dplyr
 
-recode_values <- function(data_list, schema_table, language = 'english', variables_too = FALSE, messaging = TRUE){
-  
+recode_values <- function(data_list, schema_table, language = 'english', variables_too = FALSE, messaging = TRUE, exclude_variables = c()){
+
   # Loop through each element of data list and recode choices
   table_names <- names(data_list)
   for(i in 1:length(table_names)){
@@ -38,26 +40,29 @@ recode_values <- function(data_list, schema_table, language = 'english', variabl
             }
           }
         }
-        # Get the choices
-        choices_var <- paste0('choices_', language)
-        if(choices_var %in% names(this_schema_row)){
-          the_choices <- this_schema_row %>% dplyr::select(one_of(choices_var)) %>% pull 
-          if(!is.null(unlist(the_choices))){
-            if(!is.na(unlist(the_choices))[1]){
-              joiner <- as.data.frame(the_choices)
-              out_vector <- 
-                tibble(values = this_data[,j] %>% pull) %>%
-                left_join(joiner)  %>%
-                mutate(labels = ifelse(is.na(labels), values, labels)) %>%
-                dplyr::select(labels) %>%
-                pull
-              this_data[,j] <- out_vector
+        # Recode the variables if applipicable
+        if(!this_column_name %in% exclude_variables){
+          # Get the choices
+          choices_var <- paste0('choices_', language)
+          if(choices_var %in% names(this_schema_row)){
+            the_choices <- this_schema_row %>% dplyr::select(one_of(choices_var)) %>% pull
+            if(!is.null(unlist(the_choices))){
+              if(!is.na(unlist(the_choices))[1]){
+                joiner <- as.data.frame(the_choices)
+                out_vector <-
+                  tibble(values = this_data[,j] %>% pull) %>%
+                  left_join(joiner)  %>%
+                  mutate(labels = ifelse(is.na(labels), values, labels)) %>%
+                  dplyr::select(labels) %>%
+                  pull
+                this_data[,j] <- out_vector
+              }
             }
-
           }
         }
+
       }
-      
+
     }
     data_list[[i]] <- this_data
   }

@@ -9,7 +9,8 @@ recode_values(
   schema_table,
   language = "english",
   variables_too = FALSE,
-  messaging = TRUE
+  messaging = TRUE,
+  exclude_variables = c()
 )
 }
 \arguments{
@@ -20,6 +21,10 @@ recode_values(
 \item{language}{The language to be used. By default, "english"}
 
 \item{variables_too}{Whether to recode variable names too. By default, FALSE}
+
+\item{messaging}{Whether to show messages}
+
+\item{exclude_variables}{A vector of variables to exclude from recoding (ie, those which are "select_multiple". Default: none)}
 }
 \value{
 A dataframe

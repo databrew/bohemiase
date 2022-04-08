@@ -7,7 +7,7 @@
 retrieve_data_from_central(
   fids = NULL,
   clean_column_names = TRUE,
-  clean_table_names = FALSE
+  clean_table_names = TRUE
 )
 }
 \arguments{

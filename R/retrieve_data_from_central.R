@@ -12,7 +12,7 @@
 
 retrieve_data_from_central <- function(fids = NULL,
                                        clean_column_names = TRUE,
-                                       clean_table_names = FALSE){
+                                       clean_table_names = TRUE){
 
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()

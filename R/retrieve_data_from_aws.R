@@ -12,6 +12,12 @@
 
 retrieve_data_from_aws <- function(fid = NULL, central = TRUE, clean = FALSE){
 
+  if(is.null(fid)){
+    if(clean){
+      stop('No functionality built yet for retrieving "clean" data for all data; you must instead supply a fid if you want clean data for a specific form.')
+    }
+  }
+
   if(!is.null(fid)){
     if(length(fid) > 1){
       stop('fid must be either NULL to get a list of all data, or length 1 for just one form; it cannot be more than one')
@@ -77,6 +83,7 @@ retrieve_data_from_aws <- function(fid = NULL, central = TRUE, clean = FALSE){
                        max = Inf)
   }
 
+
   if(length(buck) > 0){
     # Get the time/date for each object
     buck_names <- buck_times <-  c()
@@ -88,6 +95,15 @@ retrieve_data_from_aws <- function(fid = NULL, central = TRUE, clean = FALSE){
     buck_df <- tibble(file = buck_names,
                       date_time = substr(buck_times, 1, 19)) %>%
       mutate(date_time = as.POSIXct(date_time, format = '%Y-%m-%dT%H:%M:%OS'))
+    if(!clean){
+      nr0 <- nrow(buck_df)
+      buck_df <- buck_df %>% filter(!grepl('clean', buck_names))
+      nr1 <- nrow(buck_df)
+      if(nr1 < nr0){
+        n <- nr0 - nr1
+        message('---Ignoring the ', n, ' "clean" versions of ', fid, ' and instead returning the most recent raw version')
+      }
+    }
     # Get most recent object
     most_recent <- buck_df %>%
       filter(grepl('.RData', file)) %>%

@@ -3,13 +3,14 @@
 #' Retrieve ODK Central data from the project's AWS S3 bucket
 #' @param fid Form ID for which data should be retrieved. If NULL, all
 #' @param central Whether to use the Central Server (by default, TRUE) or the aggregate server
+#' @param clean Whether to retrieve clean data or not (by default, FALSE)
 #' @return A list
 #' @export
 #' @import aws.s3
 #' @import yaml
 #' @import dplyr
 
-retrieve_data_from_aws <- function(fid = NULL, central = TRUE){
+retrieve_data_from_aws <- function(fid = NULL, central = TRUE, clean = FALSE){
 
   if(!is.null(fid)){
     if(length(fid) > 1){
@@ -51,13 +52,31 @@ retrieve_data_from_aws <- function(fid = NULL, central = TRUE){
                             fid, '/'))
   } else {
     # No specific form identified; return the "data list"
+    if(clean){
+      message('No functionality yet for retrieving "clean" data for more than one form at a time; if you want "clean" data, supply a fid')
+    }
     prefix <- paste0(server_name, '/',
                      project_name, '/202')
   }
   # Get the contents matching the prefix
-  buck <- get_bucket(bucket = 'bohemia2022',
-                     prefix = prefix,
-                     max = Inf)
+  clean_available <- FALSE
+  if(clean){
+    # If clean, keep only those which are clean
+    buck <- get_bucket(bucket = 'bohemia2022',
+                       prefix = paste0(prefix, 'clean'),
+                       max = Inf)
+    if(length(buck) > 0){
+      clean_available <- TRUE
+    } else {
+      message('No "clean" data availale for ', fid, '. Retrieving raw data instead.')
+    }
+  }
+  if(!clean_available){
+    buck <- get_bucket(bucket = 'bohemia2022',
+                       prefix = prefix,
+                       max = Inf)
+  }
+
   if(length(buck) > 0){
     # Get the time/date for each object
     buck_names <- buck_times <-  c()

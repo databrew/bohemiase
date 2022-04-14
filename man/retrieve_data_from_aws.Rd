@@ -4,12 +4,14 @@
 \alias{retrieve_data_from_aws}
 \title{Retrieve data from AWS}
 \usage{
-retrieve_data_from_aws(fid = NULL, central = TRUE)
+retrieve_data_from_aws(fid = NULL, central = TRUE, clean = FALSE)
 }
 \arguments{
 \item{fid}{Form ID for which data should be retrieved. If NULL, all}
 
 \item{central}{Whether to use the Central Server (by default, TRUE) or the aggregate server}
+
+\item{clean}{Whether to retrieve clean data or not (by default, FALSE)}
 }
 \value{
 A list

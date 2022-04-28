@@ -49,9 +49,12 @@ recode_values <- function(data_list, schema_table, language = 'english', variabl
               the_choices <- this_schema_row %>% dplyr::select(one_of(choices_var)) %>% pull
               if(!is.null(unlist(the_choices))){
                 if(!is.na(unlist(the_choices))[1]){
-                  joiner <- as.data.frame(the_choices)
+                  joiner <- as.data.frame(the_choices) %>%
+                    mutate(values = as.character(values)#,
+                           # %>% as.characterlabels = as.character(labels)
+                           )
                   out_vector <-
-                    tibble(values = this_data[,j] %>% pull) %>%
+                    tibble(values = this_data[,j] %>% pull %>% as.character) %>%
                     left_join(joiner)  %>%
                     mutate(labels = ifelse(is.na(labels), values, labels)) %>%
                     dplyr::select(labels) %>%

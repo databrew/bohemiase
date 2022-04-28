@@ -3,7 +3,6 @@
 #' Retrieve data from Central server
 #' @param fids Form IDs for which data should be retrieved. If NULL, all
 #' @param clean_column_names Whether to clean the column names
-#' @param clean_table_names Whether to clean the table names (ie, remove all prefixes and leave only the repeat name)
 #' @return A list
 #' @export
 #' @import ruODK
@@ -11,8 +10,7 @@
 #' @import dplyr
 
 retrieve_data_from_central <- function(fids = NULL,
-                                       clean_column_names = TRUE,
-                                       clean_table_names = TRUE){
+                                       clean_column_names = TRUE){
 
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()
@@ -59,54 +57,57 @@ retrieve_data_from_central <- function(fids = NULL,
     for(i in 1:nrow(fl)){
       this_fid <- fl$fid[i]
       message('Form ', i, ' of ', nrow(fl), ': ', this_fid)
-      # Get info about the groups in each form
-      sub_forms <-
-        odata_service_get(
-          pid = get_default_pid(),
-          fid = this_fid,
-          url = get_default_url(),
-          un = get_default_un(),
-          pw = get_default_pw(),
-          retries = get_retries()
-        )
-      # Get the schema for the form
-      schema <- form_schema_ext(fid = this_fid)
-      schema_df <- schema %>% dplyr::select(ruodk_name, name, type)
 
-      # Loop through each group and retrieve the table
-      fid_list <- list()
-      for(j in 1:nrow(sub_forms)){
-        this_sub_form <- sub_forms$name[j]
-        # Define which part of column names needs to be removed
-        # in order to make column names concordant
-        remove_this <- gsub('Submissions.', '', this_sub_form, fixed = TRUE)
-        remove_this <- paste0(remove_this, '_')
-        message('---sub-form ', j, ' of ', nrow(sub_forms), ': ', this_sub_form)
-        # Get all the submissions for the sub form in question
-        this_data <- ruODK::odata_submission_get(
-          table = this_sub_form, #fq_svc$name[1],
-          fid = this_fid,
-          wkt=TRUE)
+      # # Get the schema for the form
+      # schema <- form_schema_ext(fid = this_fid)
+      # schema_df <- schema %>% dplyr::select(ruodk_name, name, type)
+
+      # New zip method
+      td <- paste0('/tmp/odk/')
+      if(dir.exists(td)){
+        unlink(td, recursive = TRUE)
+      }
+      dir.create(td)
+      ruODK::submission_export(
+        local_dir = td,
+        overwrite = TRUE,
+        media = FALSE,
+        repeats = TRUE,
+        fid = this_fid,
+        verbose = TRUE
+      )
+      # unzip the downloaded files
+      ed <- paste0(td, 'unzipped/')
+      zip_path <- paste0(td, this_fid, '.zip')
+      unzip(zipfile = zip_path, exdir = ed)
+
+      # Read in the downloaded files
+      file_names <- dir(ed)
+      data_list <- list()
+      fid_list <- c()
+      for(f in 1:length(file_names)){
+        this_file_name <- file_names[f]
+        this_sub_form <- gsub('.csv', '', this_file_name)
+        # See if this is the main submission form or not
+        is_main <- !grepl('-', this_sub_form)
+        this_sub_form <- unlist(lapply(strsplit(this_sub_form, split = '-'), function(x){x[length(x)]}))
+        if(is_main){
+          this_sub_form <- 'Submissions'
+        }
+        fid_list <- c(fid_list, this_sub_form)
+        file_path <- paste0(ed, this_file_name)
+        this_data <- readr::read_csv(file_path)
         # Clean the column names
         if(clean_column_names){
-          columns_df <- tibble(ruodk_name = names(this_data))
-          right <- schema_df %>%
-            mutate(ruodk_name = gsub(remove_this, '', ruodk_name))
-          columns_df <- left_join(columns_df,
-                                  right,
-                                  by = "ruodk_name") %>%
-            mutate(name = ifelse(is.na(name), ruodk_name, name))
-          names(this_data) <- columns_df$name
+          names(this_data) <- unlist(lapply(strsplit(names(this_data), '-'), function(a){a[length(a)]}))
         }
+        this_data$id <- this_data$KEY
+        this_data <- janitor::clean_names(this_data)
         this_data <- this_data[,!duplicated(names(this_data))]
-        fid_list[[j]] <- this_data
+        data_list[[f]] <- this_data
       }
-      if(clean_table_names){
-        names(fid_list) <- unlist(lapply(strsplit(sub_forms$name, split = '.', fixed = TRUE), function(x){x[length(x)]}))
-      } else {
-        names(fid_list) <- sub_forms$name
-      }
-      out_list[[i]] <- fid_list
+      names(data_list) <- fid_list
+      out_list[[i]] <- data_list
     }
     names(out_list) <- fl$fid
 

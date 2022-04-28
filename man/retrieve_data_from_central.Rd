@@ -4,18 +4,12 @@
 \alias{retrieve_data_from_central}
 \title{Retrieve data from central}
 \usage{
-retrieve_data_from_central(
-  fids = NULL,
-  clean_column_names = TRUE,
-  clean_table_names = TRUE
-)
+retrieve_data_from_central(fids = NULL, clean_column_names = TRUE)
 }
 \arguments{
 \item{fids}{Form IDs for which data should be retrieved. If NULL, all}
 
 \item{clean_column_names}{Whether to clean the column names}
-
-\item{clean_table_names}{Whether to clean the table names (ie, remove all prefixes and leave only the repeat name)}
 }
 \value{
 A list

@@ -96,7 +96,7 @@ retrieve_data_from_central <- function(fids = NULL,
         }
         fid_list <- c(fid_list, this_sub_form)
         file_path <- paste0(ed, this_file_name)
-        this_data <- readr::read_csv(file_path)
+        this_data <- readr::read_csv(file_path, guess_max = Inf)
         # Clean the column names
         if(clean_column_names){
           names(this_data) <- unlist(lapply(strsplit(names(this_data), '-'), function(a){a[length(a)]}))

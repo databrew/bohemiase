@@ -12,5 +12,4 @@ RoxygenNote: 7.1.2
 Imports: 
     dplyr,
     httr,
-    readr,
-    ruODK
+    readr

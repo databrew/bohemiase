@@ -94,6 +94,8 @@ retrieve_data_from_aggregate <- function(fids = NULL,
     # Due to similar naming in va153, va153b, va153b2, and va153census, these
     # can be mistaken as sub-forms and need to be dealt with appropriately
     sub_forms <- sub_forms[!grepl('va153', sub_forms)]
+    # Similarly with entoscreening and entoscreeningb
+    sub_forms <- sub_forms[!grepl('entoscreeningb', sub_forms)]
     sub_forms <- sub_forms[grepl('.csv', sub_forms)]
     this_form_list <- list()
     # Get the parent form

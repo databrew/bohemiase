@@ -4,10 +4,16 @@
 \alias{retrieve_data_from_central}
 \title{Retrieve data from central}
 \usage{
-retrieve_data_from_central(fids = NULL, clean_column_names = TRUE)
+retrieve_data_from_central(
+  fids = NULL,
+  except_fids = NULL,
+  clean_column_names = TRUE
+)
 }
 \arguments{
 \item{fids}{Form IDs for which data should be retrieved. If NULL, all}
+
+\item{except_fids}{Form IDs to exclude from retrieval}
 
 \item{clean_column_names}{Whether to clean the column names}
 }

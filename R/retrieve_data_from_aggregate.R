@@ -2,6 +2,7 @@
 #'
 #' Retrieve data from Aggregate server
 #' @param fids Form IDs for which data should be retrieved. If NULL, all
+#' @param except_fids Form IDs to exclude from retrieval
 #' @param use_local_briefcase Whether to use the local briefcase directory
 #' @return A list
 #' @export
@@ -11,6 +12,7 @@
 #' @import readr
 
 retrieve_data_from_aggregate <- function(fids = NULL,
+                                         except_fids = NULL,
                                          use_local_briefcase = TRUE){
 
   owd <- getwd()
@@ -47,6 +49,11 @@ retrieve_data_from_aggregate <- function(fids = NULL,
   # Cut down to only the form IDs which are relevant
   if(!is.null(fids)){
     fl <- fl %>% filter(id %in% fids)
+  }
+  # Remove the except ones
+  if(!is.null(except_fids)){
+    message('Not retrieving any data for: ', except_fids)
+    fl <- fl %>% filter(!fid %in% except_fids)
   }
   if(nrow(fl) < 1){
     stop('There are no forms with the IDs supplied')

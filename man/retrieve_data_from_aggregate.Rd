@@ -7,7 +7,8 @@
 retrieve_data_from_aggregate(
   fids = NULL,
   except_fids = NULL,
-  use_local_briefcase = TRUE
+  use_local_briefcase = TRUE,
+  start_fresh = FALSE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ retrieve_data_from_aggregate(
 \item{except_fids}{Form IDs to exclude from retrieval}
 
 \item{use_local_briefcase}{Whether to use the local briefcase directory}
+
+\item{start_fresh}{Whether to start data retrieval fresh (TRUE) or use already existant xml files in the briefcase directory (FALSE)}
 }
 \value{
 A list

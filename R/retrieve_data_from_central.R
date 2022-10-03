@@ -37,8 +37,45 @@ retrieve_data_from_central <- function(fids = NULL,
   )
   project_name <- creds$project_name
 
+  # Redefine project_list since ruODK function broke
+  isodt_to_local <- function(datetime_string,
+                             orders = c("YmdHMS", "YmdHMSz"),
+                             tz = get_default_tz()) {
+    datetime_string %>%
+      lubridate::parse_date_time(orders = orders) %>%
+      lubridate::with_tz(., tzone = tz)
+  }
+  get_project_list <- function (url = get_default_url(), un = get_default_un(), pw = get_default_pw(), 
+                                retries = get_retries(), orders = c("YmdHMS", "YmdHMSz", 
+                                                                    "Ymd HMS", "Ymd HMSz", "Ymd", "ymd"), tz = get_default_tz()) {
+    require(ruODK)
+    # yell_if_missing(url, un, pw)
+    httr::RETRY("GET", httr::modify_url(url, path = glue::glue("v1/projects")), 
+                httr::add_headers(Accept = "application/xml", `X-Extended-Metadata` = "true"), 
+                httr::authenticate(un, pw), times = retries) %>% 
+      # yell_if_error(., url, un, pw) %>%
+      httr::content(.) %>% tibble::tibble(.) %>% 
+      tidyr::unnest_wider(".", names_repair = "universal") %>% 
+      janitor::clean_names(.) %>% dplyr::mutate_at(dplyr::vars("last_submission", 
+                                                               "created_at", 
+                                                               "updated_at"#, 
+                                                               # "deleted_at" # this is the only change
+      ), ~isodt_to_local(., 
+                         orders = orders, tz = tz)) %>% {
+                           if ("archived" %in% names(.)) {
+                             dplyr::mutate(., archived = tidyr::replace_na(archived, 
+                                                                           FALSE))
+                           }
+                           else {
+                             .
+                           }
+                         }
+  }
+
+  
   # List projects on the server
-  projects <- ruODK::project_list()
+  # projects <- ruODK::project_list()
+  projects <- get_project_list()
 
   # Define which project to use
   pid <- projects$id[projects$name == project_name]

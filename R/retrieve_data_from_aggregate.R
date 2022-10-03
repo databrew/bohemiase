@@ -4,6 +4,7 @@
 #' @param fids Form IDs for which data should be retrieved. If NULL, all
 #' @param except_fids Form IDs to exclude from retrieval
 #' @param use_local_briefcase Whether to use the local briefcase directory
+#' @param start_fresh Whether to start data retrieval fresh (TRUE) or use already existant xml files in the briefcase directory (FALSE)
 #' @return A list
 #' @export
 #' @import yaml
@@ -13,7 +14,8 @@
 
 retrieve_data_from_aggregate <- function(fids = NULL,
                                          except_fids = NULL,
-                                         use_local_briefcase = TRUE){
+                                         use_local_briefcase = TRUE,
+                                         start_fresh = FALSE){
 
   owd <- getwd()
 
@@ -64,6 +66,7 @@ retrieve_data_from_aggregate <- function(fids = NULL,
   # Remove the ODK Briefcase folder
   # unlink('ODK Briefcase Storage', recursive = TRUE)
   unlink('csvs', recursive = TRUE)
+  
   if(file.exists('briefcase.log')){
     file.remove('briefcase.log')
   }
@@ -77,12 +80,13 @@ retrieve_data_from_aggregate <- function(fids = NULL,
     id <- this_fid <- fl$id[i]
     message('Form ', i, ' of ', nrow(fl), ': ', this_fid)
 
-    pull_remote(target = briefcase_directory,
-                id = id,
-                to = briefcase_directory,
-                from = server,
-                username = user,
-                password = password)
+    pull_remote_recent(target = briefcase_directory,
+                       id = id,
+                       to = briefcase_directory,
+                       from = server,
+                       username = user,
+                       password = password,
+                       start_fresh = start_fresh)
 
     export_data(target = briefcase_directory,
                 id = id,

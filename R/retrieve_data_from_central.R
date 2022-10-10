@@ -83,8 +83,53 @@ retrieve_data_from_central <- function(fids = NULL,
 
   # # Get a list of forms in the project
   # fl <- get_form_list()
-  fl <- ruODK::form_list()
-
+  # fl <- ruODK::form_list() # this function stopped working in newer versions,
+  # replacing here
+  gfl  <- function(pid = get_default_pid(),
+                   url = get_default_url(),
+                   un = get_default_un(),
+                   pw = get_default_pw(),
+                   retries = get_retries(),
+                   orders = c(
+                     "YmdHMS",
+                     "YmdHMSz",
+                     "Ymd HMS",
+                     "Ymd HMSz",
+                     "Ymd",
+                     "ymd"
+                   ),
+                   tz = get_default_tz()) {
+    httr::RETRY(
+      "GET",
+      httr::modify_url(url, path = glue::glue("v1/projects/{pid}/forms")),
+      httr::add_headers(
+        "Accept" = "application/xml",
+        "X-Extended-Metadata" = "true"
+      ),
+      httr::authenticate(un, pw),
+      times = retries
+    ) %>%
+      httr::content(.) %>%
+      tibble::tibble(.) %>%
+      tidyr::unnest_wider(".", names_repair = "universal") %>%
+      # tidyr::unnest_wider(
+      #   "reviewStates",
+      #   names_repair = "universal", names_sep = "_"
+      # ) %>%
+      # tidyr::unnest_wider(
+      #   "createdBy",
+      #   names_repair = "universal", names_sep = "_"
+      # ) %>%
+      janitor::clean_names() %>%
+      dplyr::mutate_at(
+        dplyr::vars(dplyr::contains("_at")), # assume datetimes are named "_at"
+        ~ isodt_to_local(., orders = orders, tz = tz)
+      ) %>%
+      dplyr::mutate(fid = xml_form_id)
+  }
+  fl <- gfl()
+  
+  
   # Cut down to only the form IDs which are relevant
   if(!is.null(fids)){
     fl <- fl %>% filter(fid %in% fids)

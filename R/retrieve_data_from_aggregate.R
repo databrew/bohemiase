@@ -5,6 +5,7 @@
 #' @param except_fids Form IDs to exclude from retrieval
 #' @param use_local_briefcase Whether to use the local briefcase directory
 #' @param start_fresh Whether to start data retrieval fresh (TRUE) or use already existant xml files in the briefcase directory (FALSE)
+#' @param handle_duplicates Smartly handle entoscreeningb and entof2f3f4f5 forms, which have multiples with the same title
 #' @return A list
 #' @export
 #' @import yaml
@@ -15,10 +16,11 @@
 retrieve_data_from_aggregate <- function(fids = NULL,
                                          except_fids = NULL,
                                          use_local_briefcase = TRUE,
-                                         start_fresh = FALSE){
-
+                                         start_fresh = FALSE,
+                                         handle_duplicates = TRUE){
+  
   owd <- getwd()
-
+  
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()
   ok <- 'bohemia_credentials' %in% names(environment_variables)
@@ -26,29 +28,29 @@ retrieve_data_from_aggregate <- function(fids = NULL,
     stop('You need to define a bohemia_credentials environment variable. Do this by runnning credentials_check("path/to/bohemia_credentials.yaml")')
   }
   bohemia_credentials <- Sys.getenv('bohemia_credentials')
-
+  
   # Actually read in the credentials
   creds <- yaml::yaml.load_file(bohemia_credentials)
   briefcase_directory <- creds$briefcase_directory
-
+  
   # Get a briefcase jar
   if(!'odkBriefcase_latest.jar' %in% dir(briefcase_directory)){
     odkr::get_briefcase(destination = briefcase_directory)
   }
-
+  
   # Define some credentials
   server <- creds$agg_url
   user <- creds$agg_un
   password <- creds$agg_pw
-
+  
   # Get the form list
   fl <- get_form_list_aggregate(pre_auth = F)
   fl <- fl %>% arrange(id)
-
+  
   # Go into briefcase directory
   setwd(briefcase_directory)
   message('New working directory is ', briefcase_directory)
-
+  
   # Cut down to only the form IDs which are relevant
   if(!is.null(fids)){
     fl <- fl %>% filter(id %in% fids)
@@ -61,7 +63,7 @@ retrieve_data_from_aggregate <- function(fids = NULL,
   if(nrow(fl) < 1){
     stop('There are no forms with the IDs supplied')
   }
-
+  
   # Loop through each form ID and get the submission
   # Remove the ODK Briefcase folder
   # unlink('ODK Briefcase Storage', recursive = TRUE)
@@ -82,7 +84,7 @@ retrieve_data_from_aggregate <- function(fids = NULL,
     
     id <- this_id <- this_fid <- fl$id[i]
     message('Form ', i, ' of ', nrow(fl), ': ', this_fid)
-
+    
     pull_remote_recent(target = briefcase_directory,
                        id = id,
                        to = briefcase_directory,
@@ -90,7 +92,7 @@ retrieve_data_from_aggregate <- function(fids = NULL,
                        username = user,
                        password = password,
                        start_fresh = start_fresh)
-
+    
     export_data(target = briefcase_directory,
                 id = id,
                 from = briefcase_directory,
@@ -102,8 +104,8 @@ retrieve_data_from_aggregate <- function(fids = NULL,
     # Due to similar naming in va153, va153b, va153b2, and va153census, these
     # can be mistaken as sub-forms and need to be dealt with appropriately
     sub_forms <- sub_forms[!grepl('va153', sub_forms)]
-    # Similarly with entoscreening and entoscreeningb
-    sub_forms <- sub_forms[!grepl('entoscreeningb|entoscreening', sub_forms)]
+    # # Similarly with entoscreening and entoscreeningb
+    # sub_forms <- sub_forms[!grepl('entoscreeningb|entoscreening', sub_forms)]
     sub_forms <- sub_forms[grepl('.csv', sub_forms)]
     this_form_list <- list()
     # Get the parent form
@@ -120,8 +122,15 @@ retrieve_data_from_aggregate <- function(fids = NULL,
       }
     }
     odk_data[[i]] <- this_form_list
+    # Smartly handle duplicates
+    # ie, delete the ODK Briefcase storage directory specifically for forms with problematic names
+    if(handle_duplicates){
+      unlink(paste0(briefcase_directory, '/ODK Briefcase Storage/forms/Formulário de Triagem de Entomologia'),
+             recursive = TRUE)
+      unlink(paste0(briefcase_directory, '/ODK Briefcase Storage/forms/Ento Formulário de bioeficacia de ivermectina nos mosquitos de campo'))
+    }
   }
-
+  
   names(odk_data) <- fl$id
   message('Returning a list of length ', length(odk_data))
   setwd(owd)

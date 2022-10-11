@@ -8,7 +8,8 @@ retrieve_data_from_aggregate(
   fids = NULL,
   except_fids = NULL,
   use_local_briefcase = TRUE,
-  start_fresh = FALSE
+  start_fresh = FALSE,
+  handle_duplicates = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ retrieve_data_from_aggregate(
 \item{use_local_briefcase}{Whether to use the local briefcase directory}
 
 \item{start_fresh}{Whether to start data retrieval fresh (TRUE) or use already existant xml files in the briefcase directory (FALSE)}
+
+\item{handle_duplicates}{Smartly handle entoscreeningb and entof2f3f4f5 forms, which have multiples with the same title}
 }
 \value{
 A list

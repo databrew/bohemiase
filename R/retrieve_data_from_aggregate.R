@@ -43,6 +43,7 @@ retrieve_data_from_aggregate <- function(fids = NULL,
 
   # Get the form list
   fl <- get_form_list_aggregate(pre_auth = F)
+  fl <- fl %>% arrange(id)
 
   # Go into briefcase directory
   setwd(briefcase_directory)
@@ -62,22 +63,24 @@ retrieve_data_from_aggregate <- function(fids = NULL,
   }
 
   # Loop through each form ID and get the submission
-  # but first delete anything already there
   # Remove the ODK Briefcase folder
   # unlink('ODK Briefcase Storage', recursive = TRUE)
-  unlink('csvs', recursive = TRUE)
-  
   if(file.exists('briefcase.log')){
     file.remove('briefcase.log')
   }
-
-  # Create a folder for csvs
-  if(!'csvs' %in% dir()){
-    dir.create('csvs')
-  }
   out_list <- list()
+  odk_data <- list()
+  counter <- 0
+  ids <- fl$id
   for(i in 1:nrow(fl)){
-    id <- this_fid <- fl$id[i]
+    # first delete anything already there
+    unlink('csvs', recursive = TRUE)
+    # Create a folder for csvs
+    if(!'csvs' %in% dir()){
+      dir.create('csvs')
+    }
+    
+    id <- this_id <- this_fid <- fl$id[i]
     message('Form ', i, ' of ', nrow(fl), ': ', this_fid)
 
     pull_remote_recent(target = briefcase_directory,
@@ -93,15 +96,9 @@ retrieve_data_from_aggregate <- function(fids = NULL,
                 from = briefcase_directory,
                 to = 'csvs',
                 filename = paste0(id, '.csv'))
-  }
-
-  #reading csv files
-  odk_data <- list()
-  counter <- 0
-  ids <- fl$id
-  for(i in 1:length(ids)){
-    this_id <- ids[i]
-    sub_forms <- dir('csvs')[grepl(paste0(ids[i], ''), dir('csvs'))]
+    
+    # Read csv files
+    sub_forms <- dir('csvs')[grepl(paste0(ids[i], ''), dir('csvs')) | dir('csvs') == ids[i]]
     # Due to similar naming in va153, va153b, va153b2, and va153census, these
     # can be mistaken as sub-forms and need to be dealt with appropriately
     sub_forms <- sub_forms[!grepl('va153', sub_forms)]

@@ -127,7 +127,8 @@ retrieve_data_from_aggregate <- function(fids = NULL,
     if(handle_duplicates){
       unlink(paste0(briefcase_directory, '/ODK Briefcase Storage/forms/Formulário de Triagem de Entomologia'),
              recursive = TRUE)
-      unlink(paste0(briefcase_directory, '/ODK Briefcase Storage/forms/Ento Formulário de bioeficacia de ivermectina nos mosquitos de campo'))
+      unlink(paste0(briefcase_directory, '/ODK Briefcase Storage/forms/Ento Formulário de bioeficacia de ivermectina nos mosquitos de campo'),
+             recursive = TRUE)
     }
   }
   

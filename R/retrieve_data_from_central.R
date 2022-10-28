@@ -301,9 +301,9 @@ retrieve_data_from_central <- function(fids = NULL,
           
           
           x <-
-            data.table::rbindlist(
+            tibble(data.table::rbindlist(
               list(df1, df2, df3, df4, df5)
-            )
+            ))
           out_list$sefull[[this_name]] <- x
         }
       }

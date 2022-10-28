@@ -7,7 +7,8 @@
 retrieve_data_from_central(
   fids = NULL,
   except_fids = NULL,
-  clean_column_names = TRUE
+  clean_column_names = TRUE,
+  handle_sefull_split = TRUE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ retrieve_data_from_central(
 \item{except_fids}{Form IDs to exclude from retrieval}
 
 \item{clean_column_names}{Whether to clean the column names}
+
+\item{handle_sefull_split}{Whether to smartly handle the sefull split by combining all the sefull forms into one}
 }
 \value{
 A list

@@ -4,15 +4,18 @@
 #' @param fids Form IDs for which data should be retrieved. If NULL, all
 #' @param except_fids Form IDs to exclude from retrieval
 #' @param clean_column_names Whether to clean the column names
+#' @param handle_sefull_split Whether to smartly handle the sefull split by combining all the sefull forms into one
 #' @return A list
 #' @export
 #' @import ruODK
 #' @import yaml
 #' @import dplyr
+#' @import data.table
 
 retrieve_data_from_central <- function(fids = NULL,
                                        except_fids = NULL,
-                                       clean_column_names = TRUE){
+                                       clean_column_names = TRUE,
+                                       handle_sefull_split = TRUE){
 
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()
@@ -128,7 +131,7 @@ retrieve_data_from_central <- function(fids = NULL,
       dplyr::mutate(fid = xml_form_id)
   }
   fl <- gfl()
-  
+
   
   # Cut down to only the form IDs which are relevant
   if(!is.null(fids)){
@@ -199,6 +202,116 @@ retrieve_data_from_central <- function(fids = NULL,
       out_list[[i]] <- data_list
     }
     names(out_list) <- fl$fid
+    
+    # Handle the sefull split
+    if(handle_sefull_split){
+      message('Handling the sefull split')
+      if('sefullv1' %in% names(out_list) & 'sefull' %in% names(out_list)){
+        for(j in 1:length(names(out_list$sefull))){
+          message(j)
+          this_name <- names(out_list$sefull)[j]
+          
+          df5 <- out_list$sefull[[this_name]]
+          df1 <- out_list$sefullv1[[this_name]]
+          df2 <- out_list$sefullv2[[this_name]]
+          df3 <- out_list$sefullv3[[this_name]]
+          df4 <- out_list$sefullv4[[this_name]]
+          
+          if('anc_when' %in% names(df3)){
+            fix_anc_when <- function(d){
+              d %>% mutate(anc_when = as.Date(anc_when))
+            }
+            df1 <- df1 %>% fix_anc_when()
+            df2 <- df2 %>% fix_anc_when()
+            df3 <- df3 %>% fix_anc_when()
+            df4 <- df4 %>% fix_anc_when()
+            df5 <- df5 %>% fix_anc_when()
+          }
+          if('drug_swallow_date' %in% names(df3)){
+            fix_drug_swallow_date <- function(d){
+              d %>% mutate(drug_swallow_date = as.Date(drug_swallow_date))
+            }
+            df1 <- df1 %>% fix_drug_swallow_date()
+            df2 <- df2 %>% fix_drug_swallow_date()
+            df3 <- df3 %>% fix_drug_swallow_date()
+            df4 <- df4 %>% fix_drug_swallow_date()
+            df5 <- df5 %>% fix_drug_swallow_date()
+          }
+          if('drug_swallow_date_alt' %in% names(df3)){
+            fix_drug_swallow_date_alt <- function(d){
+              d %>% mutate(drug_swallow_date_alt = as.POSIXct(drug_swallow_date_alt, tz = 'Europe/Madrid'))
+            }
+            df1 <- df1 %>% fix_drug_swallow_date_alt()
+            df2 <- df2 %>% fix_drug_swallow_date_alt()
+            df3 <- df3 %>% fix_drug_swallow_date_alt()
+            df4 <- df4 %>% fix_drug_swallow_date_alt()
+            df5 <- df5 %>% fix_drug_swallow_date_alt()
+          }
+          if('irs_past12_check' %in% names(df5)){
+            fix_irs_past12_check <- function(d){
+              d %>% mutate(irs_past12_check = as.Date(irs_past12_check))
+            }
+            df1 <- df1 %>% fix_irs_past12_check()
+            df2 <- df2 %>% fix_irs_past12_check()
+            df3 <- df3 %>% fix_irs_past12_check()
+            df4 <- df4 %>% fix_irs_past12_check()
+            df5 <- df5 %>% fix_irs_past12_check()
+          }
+          if('sec8_q1_dob_1' %in% names(df3)){
+            fix_sec8_q1_dob_1 <- function(d){
+              d %>% mutate(sec8_q1_dob_1 = as.POSIXct(sec8_q1_dob_1, tz = 'Europe/Madrid'))
+            }
+            df1 <- df1 %>% fix_sec8_q1_dob_1()
+            df2 <- df2 %>% fix_sec8_q1_dob_1()
+            df3 <- df3 %>% fix_sec8_q1_dob_1()
+            df4 <- df4 %>% fix_sec8_q1_dob_1()
+            df5 <- df5 %>% fix_sec8_q1_dob_1()
+          }
+          if('sec8_q1_dob_2' %in% names(df3)){
+            fix_sec8_q1_dob_2 <- function(d){
+              d %>% mutate(sec8_q1_dob_2 = as.POSIXct(sec8_q1_dob_2, tz = 'Europe/Madrid'))
+            }
+            df1 <- df1 %>% fix_sec8_q1_dob_2()
+            df2 <- df2 %>% fix_sec8_q1_dob_2()
+            df3 <- df3 %>% fix_sec8_q1_dob_2()
+            df4 <- df4 %>% fix_sec8_q1_dob_2()
+            df5 <- df5 %>% fix_sec8_q1_dob_2()
+          }
+          if('sec8_q2_dob_1' %in% names(df3)){
+            fix_sec8_q2_dob_1 <- function(d){
+              d %>% mutate(sec8_q2_dob_1 = as.POSIXct(sec8_q2_dob_1, tz = 'Europe/Madrid'))
+            }
+            df1 <- df1 %>% fix_sec8_q2_dob_1()
+            df2 <- df2 %>% fix_sec8_q2_dob_1()
+            df3 <- df3 %>% fix_sec8_q2_dob_1()
+            df4 <- df4 %>% fix_sec8_q2_dob_1()
+            df5 <- df5 %>% fix_sec8_q2_dob_1()
+          }
+          if('sec8_q2_dob_2' %in% names(df3)){
+            fix_sec8_q2_dob_2 <- function(d){
+              d %>% mutate(sec8_q2_dob_2 = as.POSIXct(sec8_q2_dob_2, tz = 'Europe/Madrid'))
+            }
+            df1 <- df1 %>% fix_sec8_q2_dob_2()
+            df2 <- df2 %>% fix_sec8_q2_dob_2()
+            df3 <- df3 %>% fix_sec8_q2_dob_2()
+            df4 <- df4 %>% fix_sec8_q2_dob_2()
+            df5 <- df5 %>% fix_sec8_q2_dob_2()
+          }
+          
+          
+          
+          x <-
+            data.table::rbindlist(
+              list(df1, df2, df3, df4, df5)
+            )
+          out_list$sefull[[this_name]] <- x
+        }
+      }
+      out_list$sefullv1 <- NULL
+      out_list$sefullv2 <- NULL
+      out_list$sefullv3 <- NULL
+      out_list$sefullv4 <- NULL
+    }
 
     data_list <- out_list
     message('Returning a list of length ', length(data_list))

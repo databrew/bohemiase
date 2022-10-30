@@ -8,7 +8,7 @@ retrieve_data_from_central(
   fids = NULL,
   except_fids = NULL,
   clean_column_names = TRUE,
-  handle_sefull_split = TRUE
+  handle_sefull_split = FALSE
 )
 }
 \arguments{

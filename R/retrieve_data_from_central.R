@@ -15,7 +15,7 @@
 retrieve_data_from_central <- function(fids = NULL,
                                        except_fids = NULL,
                                        clean_column_names = TRUE,
-                                       handle_sefull_split = TRUE){
+                                       handle_sefull_split = FALSE){
 
   # Make sure environment variables are sufficient
   environment_variables <- Sys.getenv()
@@ -137,6 +137,10 @@ retrieve_data_from_central <- function(fids = NULL,
   if(!is.null(fids)){
     fl <- fl %>% filter(fid %in% fids)
   }
+  if(!handle_sefull_split){
+    fl <- fl %>% filter(!fid %in% c('sefullv1', 'sefullv2', 'sefullv3', 'sefullv4', 'sefullv5'))
+  }
+  
   # Remove the except ones
   if(!is.null(except_fids)){
     message('Not retrieving any data for: ', except_fids)

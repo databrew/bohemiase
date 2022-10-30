@@ -206,21 +206,30 @@ retrieve_data_from_central <- function(fids = NULL,
     # Handle the sefull split
     if(handle_sefull_split){
       message('Handling the sefull split')
-      if('sefullv1' %in% names(out_list) & 'sefull' %in% names(out_list)){
+      if('sefullv1' %in% names(out_list) | 'sefull' %in% names(out_list)){
+        
         for(j in 1:length(names(out_list$sefull))){
           message(j)
           this_name <- names(out_list$sefull)[j]
           
-          df5 <- out_list$sefull[[this_name]]
+          df0 <- out_list$sefull[[this_name]]
           df1 <- out_list$sefullv1[[this_name]]
           df2 <- out_list$sefullv2[[this_name]]
           df3 <- out_list$sefullv3[[this_name]]
           df4 <- out_list$sefullv4[[this_name]]
+          df5 <- out_list$sefullv5[[this_name]]
+          
+          # Handle the possibly empty sefull form
+          if(nrow(df0) < 1){
+            df0 <- df1 %>% head(0)
+          }
+          
           
           if('anc_when' %in% names(df3)){
             fix_anc_when <- function(d){
               d %>% mutate(anc_when = as.Date(anc_when))
             }
+            df0 <- df0 %>% fix_anc_when()
             df1 <- df1 %>% fix_anc_when()
             df2 <- df2 %>% fix_anc_when()
             df3 <- df3 %>% fix_anc_when()
@@ -231,6 +240,7 @@ retrieve_data_from_central <- function(fids = NULL,
             fix_drug_swallow_date <- function(d){
               d %>% mutate(drug_swallow_date = as.Date(drug_swallow_date))
             }
+            df0 <- df0 %>% fix_drug_swallow_date()
             df1 <- df1 %>% fix_drug_swallow_date()
             df2 <- df2 %>% fix_drug_swallow_date()
             df3 <- df3 %>% fix_drug_swallow_date()
@@ -241,6 +251,7 @@ retrieve_data_from_central <- function(fids = NULL,
             fix_drug_swallow_date_alt <- function(d){
               d %>% mutate(drug_swallow_date_alt = as.POSIXct(drug_swallow_date_alt, tz = 'Europe/Madrid'))
             }
+            df0 <- df0 %>% fix_drug_swallow_date_alt()
             df1 <- df1 %>% fix_drug_swallow_date_alt()
             df2 <- df2 %>% fix_drug_swallow_date_alt()
             df3 <- df3 %>% fix_drug_swallow_date_alt()
@@ -251,6 +262,7 @@ retrieve_data_from_central <- function(fids = NULL,
             fix_irs_past12_check <- function(d){
               d %>% mutate(irs_past12_check = as.Date(irs_past12_check))
             }
+            df0 <- df0 %>% fix_irs_past12_check()
             df1 <- df1 %>% fix_irs_past12_check()
             df2 <- df2 %>% fix_irs_past12_check()
             df3 <- df3 %>% fix_irs_past12_check()
@@ -261,6 +273,7 @@ retrieve_data_from_central <- function(fids = NULL,
             fix_sec8_q1_dob_1 <- function(d){
               d %>% mutate(sec8_q1_dob_1 = as.POSIXct(sec8_q1_dob_1, tz = 'Europe/Madrid'))
             }
+            df0 <- df0 %>% fix_sec8_q1_dob_1()
             df1 <- df1 %>% fix_sec8_q1_dob_1()
             df2 <- df2 %>% fix_sec8_q1_dob_1()
             df3 <- df3 %>% fix_sec8_q1_dob_1()
@@ -271,6 +284,7 @@ retrieve_data_from_central <- function(fids = NULL,
             fix_sec8_q1_dob_2 <- function(d){
               d %>% mutate(sec8_q1_dob_2 = as.POSIXct(sec8_q1_dob_2, tz = 'Europe/Madrid'))
             }
+            df0 <- df0 %>% fix_sec8_q1_dob_2()
             df1 <- df1 %>% fix_sec8_q1_dob_2()
             df2 <- df2 %>% fix_sec8_q1_dob_2()
             df3 <- df3 %>% fix_sec8_q1_dob_2()
@@ -281,6 +295,7 @@ retrieve_data_from_central <- function(fids = NULL,
             fix_sec8_q2_dob_1 <- function(d){
               d %>% mutate(sec8_q2_dob_1 = as.POSIXct(sec8_q2_dob_1, tz = 'Europe/Madrid'))
             }
+            df0 <- df0 %>% fix_sec8_q2_dob_1()
             df1 <- df1 %>% fix_sec8_q2_dob_1()
             df2 <- df2 %>% fix_sec8_q2_dob_1()
             df3 <- df3 %>% fix_sec8_q2_dob_1()
@@ -291,18 +306,65 @@ retrieve_data_from_central <- function(fids = NULL,
             fix_sec8_q2_dob_2 <- function(d){
               d %>% mutate(sec8_q2_dob_2 = as.POSIXct(sec8_q2_dob_2, tz = 'Europe/Madrid'))
             }
+            df0 <- df0 %>% fix_sec8_q2_dob_2()
             df1 <- df1 %>% fix_sec8_q2_dob_2()
             df2 <- df2 %>% fix_sec8_q2_dob_2()
             df3 <- df3 %>% fix_sec8_q2_dob_2()
             df4 <- df4 %>% fix_sec8_q2_dob_2()
             df5 <- df5 %>% fix_sec8_q2_dob_2()
           }
+
+          # if('ind_dob' %in% names(df0)){
+          #   fix_ind_dob <- function(d){
+          #     d %>% mutate(ind_dob = as.Date(ind_dob))
+          #   }
+          #   df0 <- df0 %>% fix_ind_dob()
+          #   df1 <- df1 %>% fix_ind_dob()
+          #   df2 <- df2 %>% fix_ind_dob()
+          #   df3 <- df3 %>% fix_ind_dob()
+          #   df4 <- df4 %>% fix_ind_dob()
+          #   df5 <- df5 %>% fix_ind_dob()
+          # }
+          # if('ind_dob2' %in% names(df0)){
+          #   fix_ind_dob2 <- function(d){
+          #     d %>% mutate(ind_dob2 = as.Date(ind_dob2))
+          #   }
+          #   df0 <- df0 %>% fix_ind_dob2()
+          #   df1 <- df1 %>% fix_ind_dob2()
+          #   df2 <- df2 %>% fix_ind_dob2()
+          #   df3 <- df3 %>% fix_ind_dob2()
+          #   df4 <- df4 %>% fix_ind_dob2()
+          #   df5 <- df5 %>% fix_ind_dob2()
+          # }
+          # if('dobirth' %in% names(df0)){
+          #   fix_dobirth<- function(d){
+          #     d %>% mutate(dobirth = as.Date(dobirth))
+          #   }
+          #   df0 <- df0 %>% fix_dobirth()
+          #   df1 <- df1 %>% fix_dobirth()
+          #   df2 <- df2 %>% fix_dobirth()
+          #   df3 <- df3 %>% fix_dobirth()
+          #   df4 <- df4 %>% fix_dobirth()
+          #   df5 <- df5 %>% fix_dobirth()
+          # }
+          # if('dob_metadata' %in% names(df0)){
+          #   fix_dob_metadata<- function(d){
+          #     d %>% mutate(dob_metadata = as.Date(dob_metadata))
+          #   }
+          #   df0 <- df0 %>% fix_dob_metadata()
+          #   df1 <- df1 %>% fix_dob_metadata()
+          #   df2 <- df2 %>% fix_dob_metadata()
+          #   df3 <- df3 %>% fix_dob_metadata()
+          #   df4 <- df4 %>% fix_dob_metadata()
+          #   df5 <- df5 %>% fix_dob_metadata()
+          # }
+          
           
           
           
           x <-
             tibble(data.table::rbindlist(
-              list(df1, df2, df3, df4, df5)
+              list(df0, df1, df2, df3, df4, df5)
             ))
           out_list$sefull[[this_name]] <- x
         }
@@ -311,6 +373,7 @@ retrieve_data_from_central <- function(fids = NULL,
       out_list$sefullv2 <- NULL
       out_list$sefullv3 <- NULL
       out_list$sefullv4 <- NULL
+      out_list$sefullv5 <- NULL
     }
 
     data_list <- out_list
